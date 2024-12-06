@@ -1,10 +1,10 @@
-# Récupérer la liste de tous les DC du domaine AD
+# Retrieve the list of all Domain Controllers in the AD domain
 $DCList = Get-ADDomainController -Filter * | Sort-Object Name | Select-Object Name
 
-# Utilisateur ciblé (SamAccountName)
+# Target user (SamAccountName)
 $TargetUser = "admin.fb"
 
-# Initialiser le LastLogon sur $null comme point de départ
+# Initialize LastLogon to $null as the starting point
 $TargetUserLastLogon = $null
     
 Foreach($DC in $DCList){
@@ -13,20 +13,20 @@ Foreach($DC in $DCList){
  
         Try {
             
-            # Récupérer la valeur de l'attribut lastLogon à partir d'un DC (chaque DC tour à tour)
+            # Retrieve the lastLogon attribute value from each Domain Controller (one DC at a time)
             $LastLogonDC = Get-ADUser -Identity $TargetUser -Properties lastLogon -Server $DCName
 
-            # Convertir la valeur au format date/heure
+            # Convert the value to DateTime format
             $LastLogon = [Datetime]::FromFileTime($LastLogonDC.lastLogon)
 
-            # Si la valeur obtenue est plus récente que celle contenue dans $TargetUserLastLogon
-            # la variable est actualisée : ceci assure d'avoir le lastLogon le plus récent à la fin du traitement
+            # If the obtained value is more recent than the one stored in $TargetUserLastLogon,
+            # update the variable: this ensures that we have the most recent lastLogon by the end of the process
             If ($LastLogon -gt $TargetUserLastLogon)
             {
                 $TargetUserLastLogon = $LastLogon
             }
  
-            # Nettoyer la variable
+            # Clean the variable
             Clear-Variable LastLogon
             }
 
@@ -35,5 +35,5 @@ Foreach($DC in $DCList){
         }
 }
 
-Write-Host "Date de dernière connexion de $TargetUser :"
+Write-Host "Last logon date for $TargetUser:"
 Write-Host $TargetUserLastLogon
