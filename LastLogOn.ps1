@@ -35,5 +35,5 @@ Foreach($DC in $DCList){
         }
 }
 
-Write-Host "Last logon date for $TargetUser:"
+Write-Host "Last logon date for ${TargetUser}:"
 Write-Host $TargetUserLastLogon
